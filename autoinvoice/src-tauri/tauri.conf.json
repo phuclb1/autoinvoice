@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AutoInvoice",
+  "version": "0.1.0",
+  "identifier": "com.phuclb.autoinvoice",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "AutoInvoice - VNPT Invoice Downloader",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Automatically download invoices from VNPT Invoice portal",
+    "longDescription": "A desktop application to automatically download PDF invoices from VNPT Invoice portal using invoice codes from Excel files. Features include automated captcha solving with OpenAI GPT-4o-mini Vision API and batch download history tracking.",
+    "category": "Utility",
+    "copyright": "Copyright (c) 2024"
+  }
+}
