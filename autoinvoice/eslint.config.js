@@ -47,9 +47,13 @@ export default [
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
         Element: 'readonly',
         Node: 'readonly',
         NodeList: 'readonly',
+        React: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
       },
     },
     plugins: {
