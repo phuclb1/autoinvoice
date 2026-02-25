@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: autoinvoice/package-lock.json
 
       - name: Setup Rust
-        uses: dtolnay/rust-action@stable
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
@@ -48,11 +48,6 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: autoinvoice/src-tauri -> target
-
-      - name: Install dependencies (macOS)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          rustup target add ${{ matrix.target }}
 
       - name: Install dependencies
         working-directory: autoinvoice
