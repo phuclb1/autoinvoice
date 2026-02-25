@@ -9,6 +9,8 @@ use crate::error::AppError;
 pub mod selectors {
     /// Input field for invoice code
     pub const INVOICE_INPUT: &[&str] = &[
+        "#strFkey",
+        "input[name='strFkey']",
         "input[placeholder*='Nhập mã tra cứu']",
         "#Fkey",
         "input[name='Fkey']",
@@ -16,13 +18,19 @@ pub mod selectors {
 
     /// Captcha image
     pub const CAPTCHA_IMAGE: &[&str] = &[
+        "img.captcha_img",
         "form img[src=\"/Captcha/Show\"]",
-        "img[src*='captcha']",
+        "img[src*='Captcha']",
         "img[src='/Captcha/Show']",
+        "img[src*='captcha']",
     ];
 
     /// Captcha input field
-    pub const CAPTCHA_INPUT: &str = ".captcha_input.form-control";
+    pub const CAPTCHA_INPUT: &[&str] = &[
+        "#captch",
+        "input[name='captch']",
+        ".captcha_input.form-control",
+    ];
 
     /// Submit button
     pub const SUBMIT_BUTTON: &str = "button[type='submit']";
@@ -86,6 +94,11 @@ impl VnptBrowser {
                     .click()
                     .map_err(|e| AppError::BrowserError(format!("Failed to click input: {}", e)))?;
 
+                // Clear field via JS before typing
+                self.tab
+                    .evaluate(&format!("document.querySelector('{}').value = '';", selector), false)
+                    .map_err(|_| AppError::BrowserError("Failed to clear invoice input".to_string()))?;
+
                 element
                     .type_into(code)
                     .map_err(|e| AppError::BrowserError(format!("Failed to type code: {}", e)))?;
@@ -118,23 +131,25 @@ impl VnptBrowser {
 
     /// Fill in the captcha text
     pub fn fill_captcha(&self, text: &str) -> Result<(), AppError> {
-        // Clear existing text first
-        if let Ok(input) = self.tab.find_element(selectors::CAPTCHA_INPUT) {
-            // Triple-click to select all, then type new text
-            input
-                .click()
-                .map_err(|e| AppError::BrowserError(format!("Failed to click captcha input: {}", e)))?;
+        for selector in selectors::CAPTCHA_INPUT {
+            if let Ok(input) = self.tab.find_element(selector) {
+                // Click to focus
+                input
+                    .click()
+                    .map_err(|e| AppError::BrowserError(format!("Failed to click captcha input: {}", e)))?;
 
-            // Select all and replace
-            self.tab
-                .press_key("a")
-                .map_err(|_| AppError::BrowserError("Failed to select all".to_string()))?;
+                // Clear field via JS to avoid stale text
+                self.tab
+                    .evaluate(&format!("document.querySelector('{}').value = '';", selector), false)
+                    .map_err(|_| AppError::BrowserError("Failed to clear captcha field".to_string()))?;
 
-            input
-                .type_into(text)
-                .map_err(|e| AppError::BrowserError(format!("Failed to type captcha: {}", e)))?;
+                // Type the captcha text
+                input
+                    .type_into(text)
+                    .map_err(|e| AppError::BrowserError(format!("Failed to type captcha: {}", e)))?;
 
-            return Ok(());
+                return Ok(());
+            }
         }
 
         Err(AppError::ElementNotFound("Captcha input field".to_string()))
