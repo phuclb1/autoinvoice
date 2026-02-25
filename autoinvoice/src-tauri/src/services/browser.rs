@@ -216,16 +216,7 @@ impl VnptBrowser {
             format!("{}://{}{}", base.scheme(), base.host_str().unwrap_or(""), href)
         };
 
-        // Navigate to download URL
-        self.tab
-            .navigate_to(&full_url)
-            .map_err(|e| AppError::BrowserError(format!("Failed to navigate to download: {}", e)))?;
-
-        // Wait for download
-        std::thread::sleep(Duration::from_secs(2));
-
-        // Get page content (PDF bytes)
-        // Note: This is a simplified approach. In production, you'd use browser download handling
+        // Download PDF directly via HTTP request (no browser navigation needed)
         let response = reqwest::blocking::get(&full_url)
             .map_err(|e| AppError::DownloadFailed(format!("HTTP request failed: {}", e)))?;
 
