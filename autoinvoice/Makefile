@@ -18,7 +18,7 @@ help:
 	@echo "Build:"
 	@echo "  make build       - Build for current platform"
 	@echo "  make build-macos - Build for macOS (universal binary)"
-	@echo "  make build-windows - Build for Windows (requires cross-compilation setup)"
+	@echo "  make build-windows - Build for Windows (via GitHub Actions)"
 	@echo ""
 	@echo "Utility:"
 	@echo "  make clean       - Clean build artifacts"
@@ -71,26 +71,22 @@ build-macos-arm:
 	@echo "✅ macOS ARM build complete!"
 	@echo "📁 Output: src-tauri/target/aarch64-apple-darwin/release/bundle/"
 
-# Build for Windows (cross-compile from macOS/Linux)
-# Requires: brew install mingw-w64 (macOS) or apt install mingw-w64 (Linux)
+# Build for Windows
+# Note: Windows builds require GitHub Actions CI (cannot cross-compile from macOS)
 build-windows:
-	@echo "🪟 Building for Windows..."
-	@echo "⚠️  Note: Cross-compiling to Windows requires mingw-w64 toolchain"
-	@echo "   macOS: brew install mingw-w64"
-	@echo "   Linux: apt install mingw-w64"
+	@echo "🪟 Windows Build"
+	@echo "================"
+	@echo "Windows builds are done via GitHub Actions CI."
 	@echo ""
-	rustup target add x86_64-pc-windows-msvc 2>/dev/null || true
-	@echo "Building Windows executable..."
-	npm run tauri build -- --target x86_64-pc-windows-msvc
-	@echo "✅ Windows build complete!"
-	@echo "📁 Output: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/"
-
-# Build for Windows using GNU toolchain (easier cross-compile)
-build-windows-gnu:
-	@echo "🪟 Building for Windows (GNU toolchain)..."
-	rustup target add x86_64-pc-windows-gnu 2>/dev/null || true
-	npm run tauri build -- --target x86_64-pc-windows-gnu
-	@echo "✅ Windows GNU build complete!"
+	@echo "To build for Windows:"
+	@echo "  1. Push to main branch or create a tag (v*)"
+	@echo "  2. GitHub Actions will build automatically"
+	@echo "  3. Download artifacts from the workflow run"
+	@echo ""
+	@echo "Or trigger manually:"
+	@echo "  gh workflow run build.yml"
+	@echo ""
+	@exit 1
 
 # Run all checks
 check: lint
@@ -135,13 +131,16 @@ clean:
 rebuild: clean install build
 	@echo "✅ Rebuild complete"
 
-# Build all platforms (run on macOS for best compatibility)
-build-all: build-macos build-windows
-	@echo "✅ All platform builds complete!"
+# Build all platforms
+# Note: Windows builds are handled by GitHub Actions CI
+build-all: build-macos
+	@echo "✅ macOS build complete!"
 	@echo ""
 	@echo "Build outputs:"
 	@echo "  macOS: src-tauri/target/universal-apple-darwin/release/bundle/"
-	@echo "  Windows: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/"
+	@echo ""
+	@echo "For Windows builds, use GitHub Actions:"
+	@echo "  gh workflow run build.yml"
 
 # Release build with optimizations
 release:
