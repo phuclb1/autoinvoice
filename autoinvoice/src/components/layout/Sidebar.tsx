@@ -9,7 +9,7 @@ interface SidebarProps {
 const navItems: { id: NavItem; label: string; icon: ReactNode }[] = [
   {
     id: 'upload',
-    label: 'Upload',
+    label: 'Tải lên',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -23,7 +23,7 @@ const navItems: { id: NavItem; label: string; icon: ReactNode }[] = [
   },
   {
     id: 'download',
-    label: 'Download',
+    label: 'Tải xuống',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -37,7 +37,7 @@ const navItems: { id: NavItem; label: string; icon: ReactNode }[] = [
   },
   {
     id: 'history',
-    label: 'History',
+    label: 'Lịch sử',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -51,7 +51,7 @@ const navItems: { id: NavItem; label: string; icon: ReactNode }[] = [
   },
   {
     id: 'settings',
-    label: 'Settings',
+    label: 'Cài đặt',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

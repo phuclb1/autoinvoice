@@ -43,9 +43,9 @@ export function UploadPage({ onNavigateToDownload }: UploadPageProps) {
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Upload Excel File</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">Tải lên file Excel</h2>
         <p className="text-gray-500 mt-1">
-          Upload your VNPT invoice Excel file to extract invoice codes
+          Tải lên file Excel chứa mã hóa đơn VNPT để trích xuất mã tra cứu
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export function UploadPage({ onNavigateToDownload }: UploadPageProps) {
             />
           </svg>
           <div>
-            <p className="text-sm font-medium text-red-800">Error parsing Excel file</p>
+            <p className="text-sm font-medium text-red-800">Lỗi đọc file Excel</p>
             <p className="text-sm text-red-600 mt-1">{error}</p>
           </div>
           <button

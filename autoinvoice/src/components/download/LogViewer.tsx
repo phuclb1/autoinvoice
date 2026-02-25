@@ -44,15 +44,15 @@ export function LogViewer({ logs }: LogViewerProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-0">
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="font-medium text-gray-800">Activity Log</h3>
-        <span className="text-xs text-gray-400">{logs.length} entries</span>
+        <h3 className="font-medium text-gray-800">Nhật ký hoạt động</h3>
+        <span className="text-xs text-gray-400">{logs.length} dòng</span>
       </div>
       <div
         ref={containerRef}
         className="flex-1 p-4 overflow-auto bg-gray-900 rounded-b-xl font-mono text-sm min-h-0"
       >
         {logs.length === 0 ? (
-          <div className="text-gray-500">Waiting for download to start...</div>
+          <div className="text-gray-500">Đang chờ bắt đầu tải xuống...</div>
         ) : (
           <div className="space-y-1">
             {logs.map((log, index) => (

@@ -17,7 +17,7 @@ export function ExcelUploader({ onParseComplete, onError }: ExcelUploaderProps) 
   const handleFile = useCallback(
     async (filePath: string) => {
       if (!filePath.toLowerCase().endsWith('.xlsx')) {
-        onError('Please select an Excel file (.xlsx)');
+        onError('Vui lòng chọn file Excel (.xlsx)');
         return;
       }
 
@@ -30,7 +30,7 @@ export function ExcelUploader({ onParseComplete, onError }: ExcelUploaderProps) 
         });
 
         if (result.invoices.length === 0) {
-          onError('No invoice codes found in the Excel file');
+          onError('Không tìm thấy mã hóa đơn trong file Excel');
         } else {
           onParseComplete(result);
         }
@@ -62,7 +62,7 @@ export function ExcelUploader({ onParseComplete, onError }: ExcelUploaderProps) 
       if (files.length > 0) {
         // In Tauri, we need to use the dialog to get the actual file path
         // Drag and drop gives us File objects but we need filesystem paths
-        onError('Please use the "Select File" button to choose a file');
+        onError('Vui lòng sử dụng nút "Chọn file" để chọn file');
       }
     },
     [onError]
@@ -126,7 +126,7 @@ export function ExcelUploader({ onParseComplete, onError }: ExcelUploaderProps) 
                 />
               </svg>
             </div>
-            <p className="text-lg text-gray-600 mb-2">Parsing Excel file...</p>
+            <p className="text-lg text-gray-600 mb-2">Đang đọc file Excel...</p>
             <p className="text-sm text-gray-400">{fileName}</p>
           </>
         ) : (
@@ -144,18 +144,18 @@ export function ExcelUploader({ onParseComplete, onError }: ExcelUploaderProps) 
                 d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <p className="text-lg text-gray-600 mb-2">Click to select your Excel file</p>
-            <p className="text-sm text-gray-400 mb-4">or drag and drop here</p>
+            <p className="text-lg text-gray-600 mb-2">Nhấp để chọn file Excel</p>
+            <p className="text-sm text-gray-400 mb-4">hoặc kéo thả file vào đây</p>
             <button
               type="button"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Select File
+              Chọn file
             </button>
           </>
         )}
       </div>
-      <p className="text-center text-sm text-gray-400 mt-4">Supported format: .xlsx</p>
+      <p className="text-center text-sm text-gray-400 mt-4">Định dạng hỗ trợ: .xlsx</p>
       <input
         ref={fileInputRef}
         type="file"

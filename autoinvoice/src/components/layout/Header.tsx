@@ -17,7 +17,7 @@ export function Header() {
         </svg>
         <h1 className="text-xl font-semibold text-gray-800">AutoInvoice</h1>
       </div>
-      <div className="ml-auto text-sm text-gray-500">VNPT Invoice Downloader</div>
+      <div className="ml-auto text-sm text-gray-500">Tải hóa đơn VNPT tự động</div>
     </header>
   );
 }

@@ -33,7 +33,7 @@ export function SettingsPage() {
       const selected = await open({
         directory: true,
         multiple: false,
-        title: 'Select Default Download Directory',
+        title: 'Chọn thư mục tải xuống mặc định',
       });
       if (selected && typeof selected === 'string') {
         setSettings({ downloadDirectory: selected });
@@ -66,7 +66,7 @@ export function SettingsPage() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <p className="mt-4 text-gray-500">Loading settings...</p>
+          <p className="mt-4 text-gray-500">Đang tải cài đặt...</p>
         </div>
       </div>
     );
@@ -75,8 +75,8 @@ export function SettingsPage() {
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Settings</h2>
-        <p className="text-gray-500 mt-1">Configure application settings</p>
+        <h2 className="text-2xl font-semibold text-gray-800">Cài đặt</h2>
+        <p className="text-gray-500 mt-1">Cấu hình các thiết lập ứng dụng</p>
       </div>
 
       <div className="flex-1 max-w-2xl">
@@ -99,11 +99,11 @@ export function SettingsPage() {
                 onClick={() => setShowApiKey(!showApiKey)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-sm text-gray-500 hover:text-gray-700"
               >
-                {showApiKey ? 'Hide' : 'Show'}
+                {showApiKey ? 'Ẩn' : 'Hiện'}
               </button>
             </div>
             <p className="text-sm text-gray-400 mt-2">
-              Used for automatic captcha solving with GPT-4o-mini Vision
+              Dùng để giải captcha tự động với GPT-4o-mini Vision
             </p>
           </div>
 
@@ -120,14 +120,14 @@ export function SettingsPage() {
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <p className="text-sm text-gray-400 mt-2">
-              The VNPT invoice portal URL for your company. Can also be auto-detected from Excel.
+              URL cổng hóa đơn VNPT của công ty bạn. Cũng có thể tự động phát hiện từ file Excel.
             </p>
           </div>
 
           {/* Default Download Directory */}
           <div className="p-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Default Download Directory
+              Thư mục tải xuống mặc định
             </label>
             <div className="flex gap-2">
               <input
@@ -141,11 +141,11 @@ export function SettingsPage() {
                 onClick={handleBrowseDirectory}
                 className="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                Browse
+                Duyệt
               </button>
             </div>
             <p className="text-sm text-gray-400 mt-2">
-              Where downloaded invoice PDFs will be saved
+              Nơi lưu các file PDF hóa đơn đã tải
             </p>
           </div>
         </div>
@@ -156,7 +156,7 @@ export function SettingsPage() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="text-sm">Settings saved successfully</span>
+              <span className="text-sm">Đã lưu cài đặt thành công</span>
             </div>
           )}
           {saveStatus === 'error' && (
@@ -164,7 +164,7 @@ export function SettingsPage() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              <span className="text-sm">Failed to save settings</span>
+              <span className="text-sm">Lỗi khi lưu cài đặt</span>
             </div>
           )}
           {saveStatus === 'idle' && <div />}
@@ -190,10 +190,10 @@ export function SettingsPage() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                Saving...
+                Đang lưu...
               </>
             ) : (
-              'Save Settings'
+              'Lưu cài đặt'
             )}
           </button>
         </div>

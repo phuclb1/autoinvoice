@@ -12,22 +12,22 @@ const statusConfig = {
   pending: {
     bg: 'bg-gray-100',
     text: 'text-gray-600',
-    label: 'Pending',
+    label: 'Chờ xử lý',
   },
   downloading: {
     bg: 'bg-blue-100',
     text: 'text-blue-600',
-    label: 'Downloading',
+    label: 'Đang tải',
   },
   success: {
     bg: 'bg-green-100',
     text: 'text-green-600',
-    label: 'Success',
+    label: 'Thành công',
   },
   failed: {
     bg: 'bg-red-100',
     text: 'text-red-600',
-    label: 'Failed',
+    label: 'Thất bại',
   },
 };
 
@@ -69,10 +69,10 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
       setStatus('ready');
 
       // Navigate to download page would be handled by parent
-      alert('Failed invoices loaded for re-download. Go to Download page to start.');
+      alert('Đã tải các hóa đơn thất bại để tải lại. Vào trang Tải xuống để bắt đầu.');
     } catch (err) {
       console.error('Failed to load failed invoices:', err);
-      alert('Failed to load failed invoices: ' + err);
+      alert('Lỗi khi tải danh sách hóa đơn thất bại: ' + err);
     }
   }, [batchId, failedInvoices.length, setInvoices, setStatus]);
 
@@ -80,7 +80,7 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
     if (!dateStr) return '-';
     try {
       const date = new Date(dateStr);
-      return date.toLocaleString('en-US', {
+      return date.toLocaleString('vi-VN', {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -94,7 +94,7 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
   if (!batch) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-gray-500">Batch not found</p>
+        <p className="text-gray-500">Không tìm thấy phiên tải</p>
       </div>
     );
   }
@@ -105,15 +105,15 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <p className="text-sm text-gray-500">Date</p>
+            <p className="text-sm text-gray-500">Ngày</p>
             <p className="font-medium text-gray-800">{formatDate(batch.created_at)}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Total Invoices</p>
+            <p className="text-sm text-gray-500">Tổng hóa đơn</p>
             <p className="font-medium text-gray-800">{batch.total_count}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Success / Failed</p>
+            <p className="text-sm text-gray-500">Thành công / Thất bại</p>
             <p className="font-medium">
               <span className="text-green-600">{batch.success_count}</span>
               {' / '}
@@ -121,7 +121,7 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Directory</p>
+            <p className="text-sm text-gray-500">Thư mục</p>
             <p
               className="font-medium text-gray-800 truncate"
               title={batch.download_directory}
@@ -144,7 +144,7 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Re-download {failedInvoices.length} Failed Invoice{failedInvoices.length > 1 ? 's' : ''}
+              Tải lại {failedInvoices.length} hóa đơn thất bại
             </button>
           </div>
         )}
@@ -153,7 +153,7 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
       {/* Invoice List */}
       <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-0">
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="font-medium text-gray-800">Invoices</h3>
+          <h3 className="font-medium text-gray-800">Hóa đơn</h3>
           {isLoading && (
             <svg className="w-4 h-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
               <circle
@@ -175,26 +175,26 @@ export function BatchDetail({ batchId, onBack: _onBack }: BatchDetailProps) {
         <div className="flex-1 overflow-auto">
           {batchInvoices.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-400">
-              {isLoading ? 'Loading invoices...' : 'No invoices found'}
+              {isLoading ? 'Đang tải hóa đơn...' : 'Không tìm thấy hóa đơn'}
             </div>
           ) : (
             <table className="w-full">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                    Code
+                    Mã
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
+                    Trạng thái
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                    Downloaded
+                    Đã tải
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     File
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                    Error
+                    Lỗi
                   </th>
                 </tr>
               </thead>

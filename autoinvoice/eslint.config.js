@@ -54,6 +54,7 @@ export default [
         React: 'readonly',
         alert: 'readonly',
         confirm: 'readonly',
+        crypto: 'readonly',
       },
     },
     plugins: {

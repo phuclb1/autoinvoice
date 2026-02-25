@@ -22,33 +22,33 @@ export function InvoicePreview({
       {/* Summary Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Parse Results</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Kết quả phân tích</h3>
           <button
             onClick={onReset}
             className="text-sm text-gray-500 hover:text-gray-700 underline"
           >
-            Upload different file
+            Chọn file khác
           </button>
         </div>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Sheet Name</p>
+            <p className="text-sm text-gray-500">Tên sheet</p>
             <p className="text-lg font-medium text-gray-800">{sheet_name}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Total Rows</p>
+            <p className="text-sm text-gray-500">Tổng số dòng</p>
             <p className="text-lg font-medium text-gray-800">{total_rows}</p>
           </div>
           <div className="bg-green-50 rounded-lg p-4">
-            <p className="text-sm text-green-600">Valid Invoices</p>
+            <p className="text-sm text-green-600">Số hóa đơn hợp lệ</p>
             <p className="text-lg font-medium text-green-700">{invoices.length}</p>
           </div>
         </div>
 
         {detected_url && (
           <div className="bg-blue-50 rounded-lg p-4">
-            <p className="text-sm text-blue-600 mb-1">Detected VNPT URL</p>
+            <p className="text-sm text-blue-600 mb-1">URL VNPT được phát hiện</p>
             <p className="text-sm font-mono text-blue-800 truncate">{detected_url}</p>
           </div>
         )}
@@ -57,20 +57,20 @@ export function InvoicePreview({
       {/* Invoice List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="font-medium text-gray-800">Invoice Codes ({invoices.length})</h3>
+          <h3 className="font-medium text-gray-800">Mã hóa đơn ({invoices.length})</h3>
         </div>
         <div className="max-h-64 overflow-y-auto">
           <table className="w-full">
             <thead className="bg-gray-50 sticky top-0">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  #
+                  STT
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Invoice Code
+                  Mã hóa đơn
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Row
+                  Dòng
                 </th>
               </tr>
             </thead>
@@ -101,7 +101,7 @@ export function InvoicePreview({
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
             />
           </svg>
-          Proceed to Download ({invoices.length} invoices)
+          Tiến hành tải ({invoices.length} hóa đơn)
         </button>
       </div>
     </div>

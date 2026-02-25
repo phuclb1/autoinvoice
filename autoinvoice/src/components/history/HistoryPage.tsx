@@ -48,7 +48,7 @@ export function HistoryPage() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <p className="mt-4 text-gray-500">Loading history...</p>
+          <p className="mt-4 text-gray-500">Đang tải lịch sử...</p>
         </div>
       </div>
     );
@@ -70,12 +70,12 @@ export function HistoryPage() {
           )}
           <div>
             <h2 className="text-2xl font-semibold text-gray-800">
-              {viewMode === 'list' ? 'Download History' : 'Batch Details'}
+              {viewMode === 'list' ? 'Lịch sử tải xuống' : 'Chi tiết phiên tải'}
             </h2>
             <p className="text-gray-500 mt-1">
               {viewMode === 'list'
-                ? 'View and manage past download batches'
-                : 'View invoices in this batch'}
+                ? 'Xem và quản lý các phiên tải xuống trước đó'
+                : 'Xem các hóa đơn trong phiên tải này'}
             </p>
           </div>
         </div>

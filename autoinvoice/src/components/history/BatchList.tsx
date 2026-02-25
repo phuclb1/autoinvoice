@@ -14,7 +14,7 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
   const formatDate = (dateStr: string) => {
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('vi-VN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -29,7 +29,7 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
   const handleDelete = useCallback(
     async (e: React.MouseEvent, batchId: string) => {
       e.stopPropagation();
-      if (confirm('Are you sure you want to delete this batch? This action cannot be undone.')) {
+      if (confirm('Bạn có chắc muốn xóa phiên tải này? Hành động này không thể hoàn tác.')) {
         setDeletingId(batchId);
         await deleteBatch(batchId);
         setDeletingId(null);
@@ -55,9 +55,9 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
               d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
             />
           </svg>
-          <p className="text-gray-500 text-lg mb-2">No download history yet</p>
+          <p className="text-gray-500 text-lg mb-2">Chưa có lịch sử tải xuống</p>
           <p className="text-gray-400 text-sm">
-            Download some invoices to see them here
+            Tải một số hóa đơn để xem ở đây
           </p>
         </div>
       </div>
@@ -70,22 +70,22 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Date
+              Ngày
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total
+              Tổng
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Success
+              Thành công
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Failed
+              Thất bại
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Directory
+              Thư mục
             </th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
+              Thao tác
             </th>
           </tr>
         </thead>
@@ -132,7 +132,7 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
                         onSelectBatch(batch.id);
                       }}
                       className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      title="View details"
+                      title="Xem chi tiết"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path
@@ -153,7 +153,7 @@ export function BatchList({ batches, onSelectBatch }: BatchListProps) {
                       onClick={(e) => handleDelete(e, batch.id)}
                       disabled={deletingId === batch.id}
                       className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
-                      title="Delete batch"
+                      title="Xóa phiên tải"
                     >
                       {deletingId === batch.id ? (
                         <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

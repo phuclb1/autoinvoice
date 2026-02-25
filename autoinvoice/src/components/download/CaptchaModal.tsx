@@ -19,7 +19,7 @@ export function CaptchaModal() {
       addLog({
         timestamp: new Date().toISOString(),
         level: 'info',
-        message: `Manual captcha submitted for ${captchaRequest.invoiceCode}`,
+        message: `Đã gửi captcha thủ công cho ${captchaRequest.invoiceCode}`,
       });
       setCaptchaRequest(null);
       setCaptchaInput('');
@@ -28,7 +28,7 @@ export function CaptchaModal() {
       addLog({
         timestamp: new Date().toISOString(),
         level: 'error',
-        message: `Failed to submit captcha: ${err}`,
+        message: `Lỗi gửi captcha: ${err}`,
       });
     } finally {
       setIsSubmitting(false);
@@ -40,7 +40,7 @@ export function CaptchaModal() {
       addLog({
         timestamp: new Date().toISOString(),
         level: 'warn',
-        message: `Skipped captcha for ${captchaRequest.invoiceCode}`,
+        message: `Đã bỏ qua captcha cho ${captchaRequest.invoiceCode}`,
       });
     }
     setCaptchaRequest(null);
@@ -65,9 +65,9 @@ export function CaptchaModal() {
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-lg font-semibold text-gray-800">Manual Captcha Required</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Cần nhập captcha thủ công</h3>
           <p className="text-sm text-gray-500 mt-1">
-            Auto-solve failed for invoice: <span className="font-mono">{captchaRequest.invoiceCode}</span>
+            Giải captcha tự động thất bại cho: <span className="font-mono">{captchaRequest.invoiceCode}</span>
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export function CaptchaModal() {
           {/* Input */}
           <div className="mb-4">
             <label htmlFor="captcha-input" className="block text-sm font-medium text-gray-700 mb-2">
-              Enter the text shown above:
+              Nhập mã captcha hiển thị ở trên:
             </label>
             <input
               id="captcha-input"
@@ -94,7 +94,7 @@ export function CaptchaModal() {
               onChange={(e) => setCaptchaInput(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
-              placeholder="Type captcha here..."
+              placeholder="Nhập captcha..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-lg text-center uppercase"
               disabled={isSubmitting}
             />
@@ -107,7 +107,7 @@ export function CaptchaModal() {
               disabled={isSubmitting}
               className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-              Skip
+              Bỏ qua
             </button>
             <button
               onClick={handleSubmit}
@@ -120,10 +120,10 @@ export function CaptchaModal() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Submitting...
+                  Đang gửi...
                 </>
               ) : (
-                'Submit'
+                'Gửi'
               )}
             </button>
           </div>
@@ -132,8 +132,8 @@ export function CaptchaModal() {
         {/* Footer hint */}
         <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Press <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-700">Enter</kbd> to submit or{' '}
-            <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-700">Esc</kbd> to skip
+            Nhấn <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-700">Enter</kbd> để gửi hoặc{' '}
+            <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-700">Esc</kbd> để bỏ qua
           </p>
         </div>
       </div>
