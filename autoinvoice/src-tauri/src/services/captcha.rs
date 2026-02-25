@@ -1,5 +1,4 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::error::AppError;
@@ -44,29 +43,28 @@ struct ResponseMessage {
     content: String,
 }
 
+#[derive(Clone)]
 pub struct CaptchaSolver {
-    client: Client,
     api_key: String,
 }
 
 impl CaptchaSolver {
     pub fn new(api_key: String) -> Self {
-        Self {
-            client: Client::new(),
-            api_key,
-        }
+        Self { api_key }
     }
 
-    /// Solve a captcha image using OpenAI Vision API (GPT-4o-mini)
+    /// Solve a captcha image using OpenAI Vision API (GPT-4o-mini) - blocking version
     ///
     /// # Arguments
     /// * `image_bytes` - The captcha image as PNG bytes
     ///
     /// # Returns
     /// The extracted captcha text
-    pub async fn solve(&self, image_bytes: &[u8]) -> Result<String, AppError> {
+    pub fn solve_blocking(&self, image_bytes: &[u8]) -> Result<String, AppError> {
         if self.api_key.is_empty() {
-            return Err(AppError::ConfigError("OpenAI API key is not set".to_string()));
+            return Err(AppError::ConfigError(
+                "OpenAI API key is not set".to_string(),
+            ));
         }
 
         let base64_image = STANDARD.encode(image_bytes);
@@ -95,19 +93,18 @@ The captcha usually contains 4 alphanumeric characters.";
             max_tokens: 100,
         };
 
-        let response = self
-            .client
+        let client = reqwest::blocking::Client::new();
+        let response = client
             .post("https://api.openai.com/v1/chat/completions")
             .header("Authorization", format!("Bearer {}", self.api_key))
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
-            .await
             .map_err(|e| AppError::NetworkError(format!("Failed to call OpenAI API: {}", e)))?;
 
         if !response.status().is_success() {
             let status = response.status();
-            let error_text = response.text().await.unwrap_or_default();
+            let error_text = response.text().unwrap_or_default();
             return Err(AppError::NetworkError(format!(
                 "OpenAI API error ({}): {}",
                 status, error_text
@@ -116,7 +113,6 @@ The captcha usually contains 4 alphanumeric characters.";
 
         let result: OpenAIResponse = response
             .json()
-            .await
             .map_err(|e| AppError::NetworkError(format!("Failed to parse OpenAI response: {}", e)))?;
 
         let captcha_text = result

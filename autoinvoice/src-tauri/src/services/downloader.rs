@@ -1,6 +1,6 @@
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use tauri::{AppHandle, Emitter};
 use serde::{Deserialize, Serialize};
 
@@ -61,7 +61,7 @@ pub struct DownloadOrchestrator {
     config: DownloadConfig,
     batch_id: String,
     captcha_solver: CaptchaSolver,
-    cancelled: Arc<Mutex<bool>>,
+    cancelled: Arc<AtomicBool>,
 }
 
 impl DownloadOrchestrator {
@@ -72,173 +72,48 @@ impl DownloadOrchestrator {
             config,
             batch_id,
             captcha_solver,
-            cancelled: Arc::new(Mutex::new(false)),
+            cancelled: Arc::new(AtomicBool::new(false)),
         }
     }
 
     /// Cancel the current download batch
-    pub async fn cancel(&self) {
-        let mut cancelled = self.cancelled.lock().await;
-        *cancelled = true;
+    pub fn cancel(&self) {
+        self.cancelled.store(true, Ordering::SeqCst);
     }
 
     /// Check if download has been cancelled
-    async fn is_cancelled(&self) -> bool {
-        *self.cancelled.lock().await
+    fn is_cancelled(&self) -> bool {
+        self.cancelled.load(Ordering::SeqCst)
     }
 
-    /// Download a single invoice
+    /// Download a single invoice - runs all browser operations in a blocking context
     pub async fn download_invoice(
         &self,
         app: &AppHandle,
         invoice: &InvoiceDownloadRequest,
     ) -> Result<String, AppError> {
-        // Create browser instance
-        let browser = VnptBrowser::new(self.config.headless)?;
+        let config = self.config.clone();
+        let invoice_id = invoice.id.clone();
+        let invoice_code = invoice.code.clone();
+        let batch_id = self.batch_id.clone();
+        let captcha_solver = self.captcha_solver.clone();
+        let cancelled = self.cancelled.clone();
+        let app_handle = app.clone();
 
-        let result = self
-            .download_invoice_with_retry(app, invoice, &browser)
-            .await;
-
-        // Close browser
-        let _ = browser.close();
-
-        result
-    }
-
-    async fn download_invoice_with_retry(
-        &self,
-        app: &AppHandle,
-        invoice: &InvoiceDownloadRequest,
-        browser: &VnptBrowser,
-    ) -> Result<String, AppError> {
-        for attempt in 1..=MAX_RETRIES {
-            if self.is_cancelled().await {
-                return Err(AppError::DownloadFailed("Download cancelled".to_string()));
-            }
-
-            self.emit_log(
-                app,
-                "info",
-                &format!(
-                    "Attempt {}/{} for invoice {}",
-                    attempt, MAX_RETRIES, invoice.code
-                ),
-            );
-
-            // Navigate to search page
-            browser.navigate_to_search(&self.config.vnpt_url)?;
-
-            // Fill invoice code
-            browser.fill_invoice_code(&invoice.code)?;
-
-            // Get captcha screenshot
-            let captcha_image = browser.get_captcha_screenshot()?;
-
-            // Solve captcha with AI
-            match self.captcha_solver.solve(&captcha_image).await {
-                Ok(captcha_text) => {
-                    self.emit_log(
-                        app,
-                        "info",
-                        &format!("Captcha solved: {}", captcha_text),
-                    );
-
-                    // Fill captcha
-                    browser.fill_captcha(&captcha_text)?;
-
-                    // Submit
-                    browser.submit()?;
-
-                    // Check for errors
-                    if let Some(error) = browser.check_for_error() {
-                        self.emit_log(
-                            app,
-                            "warn",
-                            &format!("Page error: {}", error),
-                        );
-
-                        // If captcha error, retry
-                        if error.to_lowercase().contains("captcha")
-                            || error.to_lowercase().contains("sai")
-                            || error.to_lowercase().contains("không đúng")
-                        {
-                            continue;
-                        }
-                    }
-
-                    // Try to download
-                    match self.download_pdf(browser, &invoice.code).await {
-                        Ok(file_path) => {
-                            self.emit_log(
-                                app,
-                                "info",
-                                &format!("Downloaded: {}", file_path),
-                            );
-                            return Ok(file_path);
-                        }
-                        Err(e) => {
-                            self.emit_log(
-                                app,
-                                "warn",
-                                &format!("Download failed: {}", e),
-                            );
-                        }
-                    }
-                }
-                Err(e) => {
-                    self.emit_log(
-                        app,
-                        "warn",
-                        &format!("Captcha solving failed: {}", e),
-                    );
-
-                    // Emit captcha required event for manual input
-                    if attempt == MAX_RETRIES {
-                        let base64_image = base64::Engine::encode(
-                            &base64::engine::general_purpose::STANDARD,
-                            &captcha_image,
-                        );
-
-                        self.emit_captcha_required(
-                            app,
-                            &invoice.id,
-                            &invoice.code,
-                            &base64_image,
-                        );
-                    }
-                }
-            }
-        }
-
-        Err(AppError::CaptchaFailed(MAX_RETRIES))
-    }
-
-    async fn download_pdf(
-        &self,
-        browser: &VnptBrowser,
-        invoice_code: &str,
-    ) -> Result<String, AppError> {
-        // Get PDF bytes
-        let pdf_bytes = browser.download_pdf(&self.config.vnpt_url)?;
-
-        if pdf_bytes.is_empty() {
-            return Err(AppError::DownloadFailed("Empty PDF received".to_string()));
-        }
-
-        // Create filename from invoice code
-        let safe_code = invoice_code.replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], "_");
-        let filename = format!("{}.pdf", safe_code);
-
-        // Ensure download directory exists
-        let download_path = PathBuf::from(&self.config.download_directory);
-        std::fs::create_dir_all(&download_path)?;
-
-        // Save file
-        let file_path = download_path.join(&filename);
-        std::fs::write(&file_path, &pdf_bytes)?;
-
-        Ok(file_path.to_string_lossy().to_string())
+        // Run all browser operations in a blocking thread
+        tokio::task::spawn_blocking(move || {
+            download_invoice_sync(
+                &config,
+                &batch_id,
+                &invoice_id,
+                &invoice_code,
+                &captcha_solver,
+                &cancelled,
+                &app_handle,
+            )
+        })
+        .await
+        .map_err(|e| AppError::BrowserError(format!("Task panicked: {}", e)))?
     }
 
     /// Download multiple invoices
@@ -253,7 +128,7 @@ impl DownloadOrchestrator {
         let mut results: Vec<InvoiceResult> = Vec::new();
 
         for (idx, invoice) in invoices.iter().enumerate() {
-            if self.is_cancelled().await {
+            if self.is_cancelled() {
                 self.emit_log(app, "warn", "Download batch cancelled by user");
                 break;
             }
@@ -311,7 +186,7 @@ impl DownloadOrchestrator {
             }
 
             // Small delay between downloads to avoid rate limiting
-            if !self.is_cancelled().await && idx < invoices.len() - 1 {
+            if !self.is_cancelled() && idx < invoices.len() - 1 {
                 tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
             }
         }
@@ -387,24 +262,191 @@ impl DownloadOrchestrator {
             },
         );
     }
+}
 
-    fn emit_captcha_required(
-        &self,
-        app: &AppHandle,
-        invoice_id: &str,
-        invoice_code: &str,
-        image_base64: &str,
-    ) {
-        let _ = app.emit(
-            "captcha:required",
-            CaptchaRequiredEvent {
-                batch_id: self.batch_id.clone(),
-                invoice_id: invoice_id.to_string(),
-                invoice_code: invoice_code.to_string(),
-                image_base64: image_base64.to_string(),
-            },
+/// Sync function to download a single invoice - runs in blocking thread
+fn download_invoice_sync(
+    config: &DownloadConfig,
+    batch_id: &str,
+    invoice_id: &str,
+    invoice_code: &str,
+    captcha_solver: &CaptchaSolver,
+    cancelled: &Arc<AtomicBool>,
+    app: &AppHandle,
+) -> Result<String, AppError> {
+    // Create browser instance
+    let browser = VnptBrowser::new(config.headless)?;
+
+    let result = download_invoice_with_retry_sync(
+        config,
+        batch_id,
+        invoice_id,
+        invoice_code,
+        captcha_solver,
+        cancelled,
+        app,
+        &browser,
+    );
+
+    // Browser will be dropped here in the blocking context - no panic
+    drop(browser);
+
+    result
+}
+
+fn download_invoice_with_retry_sync(
+    config: &DownloadConfig,
+    batch_id: &str,
+    invoice_id: &str,
+    invoice_code: &str,
+    captcha_solver: &CaptchaSolver,
+    cancelled: &Arc<AtomicBool>,
+    app: &AppHandle,
+    browser: &VnptBrowser,
+) -> Result<String, AppError> {
+    for attempt in 1..=MAX_RETRIES {
+        if cancelled.load(Ordering::SeqCst) {
+            return Err(AppError::DownloadFailed("Download cancelled".to_string()));
+        }
+
+        emit_log_sync(
+            app,
+            batch_id,
+            "info",
+            &format!(
+                "Attempt {}/{} for invoice {}",
+                attempt, MAX_RETRIES, invoice_code
+            ),
         );
+
+        // Navigate to search page
+        browser.navigate_to_search(&config.vnpt_url)?;
+
+        // Fill invoice code
+        browser.fill_invoice_code(invoice_code)?;
+
+        // Get captcha screenshot
+        let captcha_image = browser.get_captcha_screenshot()?;
+
+        // Solve captcha with AI (blocking)
+        match captcha_solver.solve_blocking(&captcha_image) {
+            Ok(captcha_text) => {
+                emit_log_sync(
+                    app,
+                    batch_id,
+                    "info",
+                    &format!("Captcha solved: {}", captcha_text),
+                );
+
+                // Fill captcha
+                browser.fill_captcha(&captcha_text)?;
+
+                // Submit
+                browser.submit()?;
+
+                // Check for errors
+                if let Some(error) = browser.check_for_error() {
+                    emit_log_sync(app, batch_id, "warn", &format!("Page error: {}", error));
+
+                    // If captcha error, retry
+                    if error.to_lowercase().contains("captcha")
+                        || error.to_lowercase().contains("sai")
+                        || error.to_lowercase().contains("không đúng")
+                    {
+                        continue;
+                    }
+                }
+
+                // Try to download
+                match download_pdf_sync(config, browser, invoice_code) {
+                    Ok(file_path) => {
+                        emit_log_sync(
+                            app,
+                            batch_id,
+                            "info",
+                            &format!("Downloaded: {}", file_path),
+                        );
+                        return Ok(file_path);
+                    }
+                    Err(e) => {
+                        emit_log_sync(
+                            app,
+                            batch_id,
+                            "warn",
+                            &format!("Download failed: {}", e),
+                        );
+                    }
+                }
+            }
+            Err(e) => {
+                emit_log_sync(
+                    app,
+                    batch_id,
+                    "warn",
+                    &format!("Captcha solving failed: {}", e),
+                );
+
+                // Emit captcha required event for manual input
+                if attempt == MAX_RETRIES {
+                    let base64_image = base64::Engine::encode(
+                        &base64::engine::general_purpose::STANDARD,
+                        &captcha_image,
+                    );
+
+                    let _ = app.emit(
+                        "captcha:required",
+                        CaptchaRequiredEvent {
+                            batch_id: batch_id.to_string(),
+                            invoice_id: invoice_id.to_string(),
+                            invoice_code: invoice_code.to_string(),
+                            image_base64: base64_image,
+                        },
+                    );
+                }
+            }
+        }
     }
+
+    Err(AppError::CaptchaFailed(MAX_RETRIES))
+}
+
+fn download_pdf_sync(
+    config: &DownloadConfig,
+    browser: &VnptBrowser,
+    invoice_code: &str,
+) -> Result<String, AppError> {
+    // Get PDF bytes
+    let pdf_bytes = browser.download_pdf(&config.vnpt_url)?;
+
+    if pdf_bytes.is_empty() {
+        return Err(AppError::DownloadFailed("Empty PDF received".to_string()));
+    }
+
+    // Create filename from invoice code
+    let safe_code = invoice_code.replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], "_");
+    let filename = format!("{}.pdf", safe_code);
+
+    // Ensure download directory exists
+    let download_path = PathBuf::from(&config.download_directory);
+    std::fs::create_dir_all(&download_path)?;
+
+    // Save file
+    let file_path = download_path.join(&filename);
+    std::fs::write(&file_path, &pdf_bytes)?;
+
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+fn emit_log_sync(app: &AppHandle, batch_id: &str, level: &str, message: &str) {
+    let _ = app.emit(
+        "download:log",
+        LogEvent {
+            batch_id: batch_id.to_string(),
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            level: level.to_string(),
+            message: message.to_string(),
+        },
+    );
 }
 
 #[derive(Debug, Clone, Serialize)]

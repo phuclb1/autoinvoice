@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useDownload, useSettings } from '../../store';
@@ -22,7 +22,12 @@ export function DownloadPage() {
     clearLogs,
   } = useDownload();
 
-  const { settings } = useSettings();
+  const { settings, loadSettings } = useSettings();
+
+  // Load settings on mount to ensure API key is available
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const canStart = status === 'ready' && invoices.length > 0 && downloadDirectory;
   const isDownloading = status === 'downloading';
@@ -71,7 +76,7 @@ export function DownloadPage() {
           vnpt_url: vnptUrl,
           openai_api_key: settings.openaiApiKey,
           download_directory: downloadDirectory,
-          headless: false, // Debug: show browser window
+          headless: true,
         },
       };
 

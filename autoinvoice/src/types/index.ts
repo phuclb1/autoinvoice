@@ -60,9 +60,9 @@ export interface HistoryInvoice {
   downloaded_at: string | null;
 }
 
-// Captcha
+// Captcha - snake_case to match Rust backend
 export interface CaptchaRequest {
-  invoiceId: string;
-  invoiceCode: string;
-  imageBase64: string;
+  invoice_id: string;
+  invoice_code: string;
+  image_base64: string;
 }

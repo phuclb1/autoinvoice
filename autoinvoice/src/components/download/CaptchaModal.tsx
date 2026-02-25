@@ -13,13 +13,13 @@ export function CaptchaModal() {
     setIsSubmitting(true);
     try {
       await invoke('submit_manual_captcha', {
-        invoiceId: captchaRequest.invoiceId,
+        invoiceId: captchaRequest.invoice_id,
         captchaText: captchaInput.trim(),
       });
       addLog({
         timestamp: new Date().toISOString(),
         level: 'info',
-        message: `Đã gửi captcha thủ công cho ${captchaRequest.invoiceCode}`,
+        message: `Đã gửi captcha thủ công cho ${captchaRequest.invoice_code}`,
       });
       setCaptchaRequest(null);
       setCaptchaInput('');
@@ -40,7 +40,7 @@ export function CaptchaModal() {
       addLog({
         timestamp: new Date().toISOString(),
         level: 'warn',
-        message: `Đã bỏ qua captcha cho ${captchaRequest.invoiceCode}`,
+        message: `Đã bỏ qua captcha cho ${captchaRequest.invoice_code}`,
       });
     }
     setCaptchaRequest(null);
@@ -67,7 +67,7 @@ export function CaptchaModal() {
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h3 className="text-lg font-semibold text-gray-800">Cần nhập captcha thủ công</h3>
           <p className="text-sm text-gray-500 mt-1">
-            Giải captcha tự động thất bại cho: <span className="font-mono">{captchaRequest.invoiceCode}</span>
+            Giải captcha tự động thất bại cho: <span className="font-mono">{captchaRequest.invoice_code}</span>
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export function CaptchaModal() {
         <div className="p-6">
           <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-center mb-4">
             <img
-              src={`data:image/png;base64,${captchaRequest.imageBase64}`}
+              src={`data:image/png;base64,${captchaRequest.image_base64}`}
               alt="Captcha"
               className="max-w-full h-auto"
               style={{ imageRendering: 'pixelated' }}

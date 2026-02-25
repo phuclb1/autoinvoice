@@ -67,7 +67,7 @@ pub async fn cancel_download(
     let orchestrators = state.orchestrators.lock().await;
 
     if let Some(orchestrator) = orchestrators.get(&batch_id) {
-        orchestrator.cancel().await;
+        orchestrator.cancel();
         Ok(())
     } else {
         Err(AppError::ConfigError(format!(
