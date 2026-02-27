@@ -15,7 +15,7 @@ export interface DownloadSlice {
   batchId: string | null;
 
   // Actions
-  setInvoices: (invoices: InvoiceCode[], detectedUrl: string | null) => void;
+  setInvoices: (invoices: InvoiceCode[], detectedUrl: string | null, defaultDirectory?: string) => void;
   updateInvoiceStatus: (id: string, status: InvoiceCode['status'], error?: string) => void;
   setProgress: (progress: DownloadProgress) => void;
   addLog: (log: LogEntry) => void;
@@ -41,12 +41,13 @@ const initialState = {
 export const createDownloadSlice: StateCreator<DownloadSlice> = (set) => ({
   ...initialState,
 
-  setInvoices: (invoices, detectedUrl) => {
-    set({
+  setInvoices: (invoices, detectedUrl, defaultDirectory) => {
+    set((state) => ({
       invoices,
       detectedVnptUrl: detectedUrl,
       status: 'ready',
-    });
+      downloadDirectory: defaultDirectory || state.downloadDirectory,
+    }));
   },
 
   updateInvoiceStatus: (id, status, error) => {

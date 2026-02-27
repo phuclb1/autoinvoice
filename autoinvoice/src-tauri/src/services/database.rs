@@ -301,11 +301,34 @@ impl Database {
             Ok(value.unwrap_or_default())
         };
 
+        let download_directory = get_setting("download_directory")?;
+        let download_directory = if download_directory.is_empty() {
+            Self::get_default_download_directory()
+        } else {
+            download_directory
+        };
+
         Ok(Settings {
             openai_api_key: get_setting("openai_api_key")?,
             vnpt_url: get_setting("vnpt_url")?,
-            download_directory: get_setting("download_directory")?,
+            download_directory,
         })
+    }
+
+    /// Get platform-specific default download directory
+    fn get_default_download_directory() -> String {
+        #[cfg(target_os = "windows")]
+        {
+            // Windows: use D:\ if exists, otherwise Documents
+            if std::path::Path::new("D:\\").exists() {
+                return "D:\\".to_string();
+            }
+        }
+
+        // macOS and fallback: use Documents directory
+        dirs::document_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default()
     }
 
     /// Save application settings

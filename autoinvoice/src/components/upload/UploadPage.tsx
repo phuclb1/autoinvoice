@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ExcelUploader } from './ExcelUploader';
 import { InvoicePreview } from './InvoicePreview';
-import { useDownload } from '../../store';
+import { useDownload, useSettings } from '../../store';
 import type { ExcelParseResult } from '../../types';
 
 interface UploadPageProps {
@@ -12,6 +12,12 @@ export function UploadPage({ onNavigateToDownload }: UploadPageProps) {
   const [parseResult, setParseResult] = useState<ExcelParseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { setInvoices } = useDownload();
+  const { settings, loadSettings } = useSettings();
+
+  // Load settings on mount to get default download directory
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const handleParseComplete = (result: ExcelParseResult) => {
     setParseResult(result);
@@ -25,12 +31,12 @@ export function UploadPage({ onNavigateToDownload }: UploadPageProps) {
 
   const handleProceed = () => {
     if (parseResult) {
-      // Set invoices in store with pending status
+      // Set invoices in store with pending status and default download directory
       const invoicesWithStatus = parseResult.invoices.map((inv) => ({
         ...inv,
         status: 'pending' as const,
       }));
-      setInvoices(invoicesWithStatus, parseResult.detected_url);
+      setInvoices(invoicesWithStatus, parseResult.detected_url, settings.downloadDirectory);
       onNavigateToDownload();
     }
   };
